@@ -23,7 +23,7 @@ export function ItineraryHeader({
       className={cn("rounded overflow-hidden flex flex-col gap-5", className)}
     >
       {/* Hero image */}
-      <div className="relative h-50 bg-[url('/banner.png')] bg-cover bg-left min-[1440px]:bg-center bg-no-repeat rounded-sm">
+      <div className="relative h-50 bg-[url('/banner.png')] bg-cover bg-left min-[1800px]:bg-center bg-no-repeat rounded-sm">
         <button
           onClick={onBack}
           className="absolute left-6 top-6 flex size-12 items-center justify-center rounded-sm bg-white/20 text-neutral-900 transition-colors duration-150 hover:bg-white/80 cursor-pointer"
