@@ -68,6 +68,7 @@ export function ItineraryHeader({
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-1">
               <Button
+                aria-label="Add another Person"
                 variant="secondary"
                 size="sm"
                 className="w-40 bg-primary-100 text-primary-600 py-3 px-6 hover:bg-gray-50 transition-colors duration-150 text-sm font-medium h-11.5 cursor-pointer"
