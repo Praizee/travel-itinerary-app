@@ -1,65 +1,280 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ItineraryHeader,
+  FlightsSection,
+  HotelsSection,
+  ActivitiesSection,
+} from "@/components/itinerary";
+import { useItineraryStore } from "@/store";
+import {
+  useRemoveFlight,
+  useRemoveHotel,
+  useRemoveActivity,
+  useUpdateActivityDay,
+} from "@/hooks";
+import type { Itinerary } from "@/types/domain";
+
+const sampleItinerary: Itinerary = {
+  id: "sample-1",
+  name: "Bahamas Family Trip",
+  destination: "New York, United States of America",
+  startDate: "2024-03-21",
+  endDate: "2024-04-21",
+  tripType: "solo",
+  flights: [
+    {
+      id: "flight-1",
+      airline: "American Airlines",
+      airlineCode: "AA",
+      flightNumber: "AA-829",
+      flightClass: "first",
+      departureTime: "2024-03-21T08:35:00",
+      arrivalTime: "2024-03-21T09:55:00",
+      departureAirport: "LOS",
+      arrivalAirport: "SIN",
+      departureCity: "Lagos",
+      arrivalCity: "Singapore",
+      duration: "1h 45m",
+      stops: 0,
+      price: 123450,
+      currency: "NGN",
+      facilities: ["in-flight-entertainment", "in-flight-meal", "usb-port"],
+      baggageAllowance: {
+        checkedBaggage: "20kg",
+        cabinBaggage: "8kg",
+      },
+    },
+    {
+      id: "flight-2",
+      airline: "American Airlines",
+      airlineCode: "AA",
+      flightNumber: "AA-829",
+      flightClass: "first",
+      departureTime: "2024-03-28T08:35:00",
+      arrivalTime: "2024-03-28T09:55:00",
+      departureAirport: "LOS",
+      arrivalAirport: "SIN",
+      departureCity: "Lagos",
+      arrivalCity: "Singapore",
+      duration: "1h 45m",
+      stops: 0,
+      price: 123450,
+      currency: "NGN",
+      facilities: ["in-flight-entertainment", "in-flight-meal", "usb-port"],
+      baggageAllowance: {
+        checkedBaggage: "20kg",
+        cabinBaggage: "8kg",
+      },
+    },
+  ],
+  hotels: [
+    {
+      id: "hotel-1",
+      name: "Riviera Resort, Lekki",
+      address:
+        "18, Kenneth Agbakuru Street, Off Access Bank Admiralty Way, Lekki Phase1",
+      city: "Lagos",
+      rating: 4.5,
+      reviewCount: 436,
+      roomType: "King size room",
+      pricePerNight: 12345,
+      totalPrice: 123450,
+      currency: "NGN",
+      checkInDate: "2024-04-20",
+      checkOutDate: "2024-04-25",
+      nights: 10,
+      taxesIncluded: true,
+      facilities: ["pool", "bar", "restaurant"],
+      images: [],
+      coordinates: { latitude: 6.4541, longitude: 3.4218 },
+    },
+    {
+      id: "hotel-2",
+      name: "Riviera Resort, Lekki",
+      address:
+        "18, Kenneth Agbakuru Street, Off Access Bank Admiralty Way, Lekki Phase1",
+      city: "Lagos",
+      rating: 4.5,
+      reviewCount: 436,
+      roomType: "King size room",
+      pricePerNight: 12345,
+      totalPrice: 123450,
+      currency: "NGN",
+      checkInDate: "2024-04-20",
+      checkOutDate: "2024-04-25",
+      nights: 10,
+      taxesIncluded: true,
+      facilities: ["pool", "bar", "restaurant"],
+      images: [],
+      coordinates: { latitude: 6.4541, longitude: 3.4218 },
+    },
+  ],
+  activities: [
+    {
+      id: "activity-1",
+      name: "The Museum of Modern Art",
+      description:
+        "Works from Van Gogh to Warhol & beyond plus a sculpture garden, 2 cafes & The modern restaurant.",
+      location: "Empire State Building",
+      rating: 4.5,
+      reviewCount: 436,
+      duration: "1 hour",
+      price: 123450,
+      currency: "NGN",
+      dateTime: "2024-03-19T10:30:00",
+      day: 1,
+      whatIsIncluded: ["Admission to the Empire State Building"],
+      images: [],
+      category: "museum",
+    },
+    {
+      id: "activity-2",
+      name: "The Museum of Modern Art",
+      description:
+        "Works from Van Gogh to Warhol & beyond plus a sculpture garden, 2 cafes & The modern restaurant.",
+      location: "Empire State Building",
+      rating: 4.5,
+      reviewCount: 436,
+      duration: "1 hour",
+      price: 123450,
+      currency: "NGN",
+      dateTime: "2024-03-19T10:30:00",
+      day: 1,
+      whatIsIncluded: ["Admission to the Empire State Building"],
+      images: [],
+      category: "museum",
+    },
+    {
+      id: "activity-3",
+      name: "The Museum of Modern Art",
+      description:
+        "Works from Van Gogh to Warhol & beyond plus a sculpture garden, 2 cafes & The modern restaurant.",
+      location: "Empire State Building",
+      rating: 4.5,
+      reviewCount: 436,
+      duration: "1 hour",
+      price: 123450,
+      currency: "NGN",
+      dateTime: "2024-03-19T10:30:00",
+      day: 2,
+      whatIsIncluded: ["Admission to the Empire State Building"],
+      images: [],
+      category: "museum",
+    },
+  ],
+  createdAt: "2024-01-15T10:00:00Z",
+  updatedAt: "2024-01-15T10:00:00Z",
+};
+
+export default function HomePage() {
+  const router = useRouter();
+  const currentItinerary = useItineraryStore((state) => state.currentItinerary);
+  const createItinerary = useItineraryStore((state) => state.createItinerary);
+  const setCurrentItinerary = useItineraryStore(
+    (state) => state.setCurrentItinerary,
+  );
+  const itineraries = useItineraryStore((state) => state.itineraries);
+
+  const {
+    mutate: removeFlight,
+    isPending: isRemovingFlight,
+    variables: removingFlightId,
+  } = useRemoveFlight();
+  const {
+    mutate: removeHotel,
+    isPending: isRemovingHotel,
+    variables: removingHotelId,
+  } = useRemoveHotel();
+  const {
+    mutate: removeActivity,
+    isPending: isRemovingActivity,
+    variables: removingActivityId,
+  } = useRemoveActivity();
+  const { mutate: updateActivityDay } = useUpdateActivityDay();
+
+  useEffect(() => {
+    if (itineraries.length === 0) {
+      createItinerary({
+        name: sampleItinerary.name,
+        destination: sampleItinerary.destination,
+        startDate: sampleItinerary.startDate,
+        endDate: sampleItinerary.endDate,
+        tripType: sampleItinerary.tripType,
+      });
+    }
+  }, [itineraries.length, createItinerary]);
+
+  // Set the first itinerary as current if none is selected
+  useEffect(() => {
+    if (!currentItinerary && itineraries.length > 0) {
+      setCurrentItinerary(itineraries[0].id);
+    }
+  }, [currentItinerary, itineraries, setCurrentItinerary]);
+
+  const displayItinerary =
+    currentItinerary &&
+    (currentItinerary.flights?.length ||
+      currentItinerary.hotels?.length ||
+      currentItinerary.activities?.length)
+      ? currentItinerary
+      : sampleItinerary;
+
+  const handleAddFlights = () => {
+    router.push("/flights");
+  };
+
+  const handleAddHotels = () => {
+    router.push("/hotels");
+  };
+
+  const handleAddActivities = () => {
+    router.push("/activities");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="bg-white p-4 md:p-8">
+      <ItineraryHeader itinerary={displayItinerary} />
+
+      <div className="mt-8">
+        <div className="mb-7">
+          <h2 className="text-lg font-semibold text-black-primary">
+            Trip Itineraries
+          </h2>
+          <p className="text-sm text-neutral-700">
+            Your trip itineraries are placed here
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="flex flex-col gap-4">
+          <FlightsSection
+            flights={displayItinerary.flights}
+            onAddClick={handleAddFlights}
+            onRemoveFlight={(id) => removeFlight(id)}
+            removingId={isRemovingFlight ? removingFlightId : undefined}
+          />
+
+          <HotelsSection
+            hotels={displayItinerary.hotels}
+            onAddClick={handleAddHotels}
+            onRemoveHotel={(id) => removeHotel(id)}
+            removingId={isRemovingHotel ? removingHotelId : undefined}
+          />
+
+          <ActivitiesSection
+            activities={displayItinerary.activities}
+            onAddClick={handleAddActivities}
+            onRemoveActivity={(id) => removeActivity(id)}
+            onDayChange={(activityId, day) =>
+              updateActivityDay({ activityId, day })
+            }
+            removingId={isRemovingActivity ? removingActivityId : undefined}
+          />
         </div>
-      </main>
+      </div>
     </div>
   );
 }
+
