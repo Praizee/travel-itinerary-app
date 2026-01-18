@@ -48,7 +48,7 @@ const mobileNavItems = [
 const navItems = [
   {
     label: "Activities",
-    href: "/",
+    href: "/activities",
     icon: <ActivitiesIcon className="size-4 sm:size-6" />,
   },
   {
