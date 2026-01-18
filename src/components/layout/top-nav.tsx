@@ -129,7 +129,7 @@ export function TopNav() {
               <button
                 type="button"
                 key={item.label}
-                className="flex flex-col items-center gap-1 text-neutral-500 transition-colors hover:text-primary-600 cursor-pointer"
+                className="flex flex-col items-center gap-1 text-neutral-700 transition-colors hover:text-primary-600 cursor-pointer"
               >
                 {item.icon}
                 <span className="text-sm font-medium">{item.label}</span>
