@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Ellipsis } from "lucide-react";
 import type { Itinerary } from "@/types/domain";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { formatDate, cn } from "@/lib/utils";
 import { CalendarIcon, SettingsIcon, UserPlusIcon } from "../icons";
@@ -18,6 +19,12 @@ export function ItineraryHeader({
   onBack,
   className,
 }: ItineraryHeaderProps) {
+  const router = useRouter();
+  const handleQuickAdd = (variant: "activities" | "hotels" | "flights") => {
+    if (variant === "activities") router.push("/activities");
+    else if (variant === "hotels") router.push("/hotels");
+    else if (variant === "flights") router.push("/flights");
+  };
   return (
     <div
       className={cn("rounded overflow-hidden flex flex-col gap-5", className)}
@@ -99,18 +106,21 @@ export function ItineraryHeader({
             description="Build, personalize, and optimize your itineraries with our trip planner."
             buttonLabel="Add Activities"
             variant="activities"
+            onClick={() => handleQuickAdd("activities")}
           />
           <QuickAddCard
             title="Hotels"
             description="Build, personalize, and optimize your itineraries with our trip planner."
             buttonLabel="Add Hotels"
             variant="hotels"
+            onClick={() => handleQuickAdd("hotels")}
           />
           <QuickAddCard
             title="Flights"
             description="Build, personalize, and optimize your itineraries with our trip planner."
             buttonLabel="Add Flights"
             variant="flights"
+            onClick={() => handleQuickAdd("flights")}
           />
         </div>
       </div>
